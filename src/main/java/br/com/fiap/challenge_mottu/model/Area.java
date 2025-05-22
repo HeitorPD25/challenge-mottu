@@ -2,19 +2,26 @@ package br.com.fiap.challenge_mottu.model;
 
 import java.util.List;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class Area {
     
-    private Long Id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private String Name;
+    @NotBlank
+    private String name;
 
-    private Long PatioId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long patioId;
 
-    private Patio Patio;
+    private Patio patio;
 
-    private List<Motorcycle> Motorcycles;
+    private List<Motorcycle> motorcycles;
 
 }

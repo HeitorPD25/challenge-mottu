@@ -2,24 +2,34 @@ package br.com.fiap.challenge_mottu.model;
 
 import java.util.List;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
 public class Patio {
     
-    private Long Id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private String Name;
+    @NotBlank
+    @Pattern(regexp = "^[A-Z].*$")
+    private String name;
 
-    private Long AdressId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long adressId;
 
-    private Adress Adress;
+    private Adress adress;
 
-    private Long UserId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
-    private User User;
+    private User user;
 
-    private List<Area> Areas;
+    private List<Area> areas;
 
 
 }
