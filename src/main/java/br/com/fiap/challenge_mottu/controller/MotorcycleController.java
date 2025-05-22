@@ -2,6 +2,8 @@ package br.com.fiap.challenge_mottu.controller;
 
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,18 +20,34 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import br.com.fiap.challenge_mottu.model.Motorcycle;
+import br.com.fiap.challenge_mottu.model.dto.MotorcycleDTO;
+import br.com.fiap.challenge_mottu.model.entity.Motorcycle;
 import br.com.fiap.challenge_mottu.repository.MotorcycleRpository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/motorcycles")
+@Slf4j
 public class MotorcycleController {
 
     @Autowired
     private MotorcycleRpository repository;
+
+// ------------------------------ Model Mapper ------------------------------
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public MotorcycleDTO toDTO(Motorcycle motorcycle) {
+        return modelMapper.map(motorcycle, MotorcycleDTO.class);
+    }
+
+    public Motorcycle toEntity(MotorcycleDTO dto) {
+        return modelMapper.map(dto, Motorcycle.class);
+    }
+// --------------------------------------------------------------------------
 
     @GetMapping
     @Operation(summary = "Listar Motos", 
@@ -39,14 +57,14 @@ public class MotorcycleController {
         return repository.findAll();
     }
 
-    @GetMapping("{license_plate}")
+    @GetMapping("{id}")
     @Operation(summary = "Listar Motos", 
                description = "Busca uma Moto pelo ID",
                responses = @ApiResponse(responseCode = "404", 
                description = "Moto não encontrada!"))
     @Cacheable("motorcycles")
-    public ResponseEntity<Motorcycle> get(@PathVariable String license_plate, Long id) {
-        System.out.println("Buscando Moto " + license_plate);
+    public ResponseEntity<Motorcycle> get(@PathVariable Long id) {
+        System.out.println("Buscando Moto " + id);
         return ResponseEntity.ok(getMoto(id));
     }
 
@@ -62,26 +80,27 @@ public class MotorcycleController {
         return repository.save(moto);
     }
 
-    @PutMapping("{license_plate}")
+    @PutMapping("{id}")
     @Operation(summary = "Atualizar uma Moto", 
             description = "Atualiza uma Moto pelo ID",
             responses = @ApiResponse(responseCode = "404", 
             description = "Moto não encontrada!"))
-    public ResponseEntity<Motorcycle> update(@Valid @PathVariable String license_plate, @RequestBody Motorcycle moto, Long id) {
-        System.out.println("Atualizando Moto " + license_plate + " com " + moto);
+    public ResponseEntity<Motorcycle> update(@Valid @RequestBody Motorcycle moto, @PathVariable Long id) {
+        log.info("Atualizando área " + id + " com " + moto);
 
-        getMoto(id);
-        repository.save(moto);
-        return ResponseEntity.ok(moto);
+        var oldMoto = getMoto(id);
+        BeanUtils.copyProperties(moto, oldMoto, "id", "user");
+        repository.save(oldMoto);
+        return ResponseEntity.ok(oldMoto);
     }
 
-    @DeleteMapping("{license_plate}")
+    @DeleteMapping("{id}")
     @Operation(summary = "Deletar uma Moto", 
             description = "Deleta uma Moto pelo ID",
             responses = @ApiResponse(responseCode = "404", 
             description = "Moto não encontrada!"))
-    public ResponseEntity<Motorcycle> delete(@Valid @PathVariable String license_plate, Long id) {
-        System.out.println("Deletando a Moto " + license_plate);
+    public ResponseEntity<Motorcycle> delete(@Valid @PathVariable Long id) {
+        System.out.println("Deletando a Moto " + id);
         repository.delete(getMoto(id));
         return ResponseEntity.noContent().build();
     }

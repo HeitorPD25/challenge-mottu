@@ -1,6 +1,8 @@
 package br.com.fiap.challenge_mottu.controller;
 
 import java.util.List;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import br.com.fiap.challenge_mottu.model.Area;
+import br.com.fiap.challenge_mottu.model.dto.AreaDTO;
+import br.com.fiap.challenge_mottu.model.entity.Area;
 import br.com.fiap.challenge_mottu.repository.AreaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,6 +34,19 @@ public class AreaController {
     
     @Autowired
     private AreaRepository repository;
+
+// ------------------------------ Model Mapper ------------------------------
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public AreaDTO toDTO(Area area) {
+        return modelMapper.map(area, AreaDTO.class);
+    }
+
+    public Area toEntity(AreaDTO dto) {
+        return modelMapper.map(dto, Area.class);
+    }
+// --------------------------------------------------------------------------
 
     @GetMapping
     @Operation(summary = "Listar Áreas", 
@@ -68,7 +84,7 @@ public class AreaController {
             responses = @ApiResponse(responseCode = "404", 
             description = "Área não encontrada!"))
     public ResponseEntity<Area> update(@PathVariable Long id, @RequestBody @Valid Area area){
-        log.info("Atualizando categoria " + id + " com " + area);
+        log.info("Atualizando área " + id + " com " + area);
 
         var oldArea = getArea(id);
         BeanUtils.copyProperties(area, oldArea, "id", "user");
