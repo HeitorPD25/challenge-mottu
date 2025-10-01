@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: html(~{::title}, ~{::section})">
+<head>
+    <title th:text="${motorcycle.id != null} ? 'Editar Motocicleta' : 'Nova Motocicleta'">Nova Motocicleta</title>
+</head>
+<body>
+    <section th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <i class="fas fa-motorcycle"></i>
+                <span th:text="${motorcycle.id != null} ? 'Editar Motocicleta' : 'Nova Motocicleta'">Nova Motocicleta</span>
+            </h1>
+            <a href="/motorcycles" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <form th:action="@{${motorcycle.id} != null ? '/motorcycles/' + ${motorcycle.id} : '/motorcycles'}" 
+              th:object="${motorcycle}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="plate" class="form-label">Placa *</label>
+                    <input type="text" th:field="*{plate}" class="form-control" id="plate" required maxlength="8" placeholder="ABC-1234 ou ABC1D23">
+                    <div th:if="${#fields.hasErrors('plate')}" class="text-danger" th:errors="*{plate}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="model" class="form-label">Modelo *</label>
+                    <select th:field="*{model}" class="form-select" id="model" required>
+                        <option value="">Selecione o modelo</option>
+                        <option th:each="model : ${modelValues}" th:value="${model}" th:text="${model}" 
+                                th:selected="${motorcycle.model} == ${model}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('model')}" class="text-danger" th:errors="*{model}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="color" class="form-label">Cor *</label>
+                    <input type="text" th:field="*{color}" class="form-control" id="color" required maxlength="50" placeholder="Ex: Vermelha, Preta, Azul...">
+                    <div th:if="${#fields.hasErrors('color')}" class="text-danger" th:errors="*{color}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="status" class="form-label">Status *</label>
+                    <select th:field="*{status}" class="form-select" id="status" required>
+                        <option value="">Selecione o status</option>
+                        <option th:each="status : ${statusValues}" th:value="${status}" th:text="${status}" 
+                                th:selected="${motorcycle.status} == ${status}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('status')}" class="text-danger" th:errors="*{status}"></div>
+                </div>
+
+                <div class="col-md-12">
+                    <label for="area" class="form-label">Área</label>
+                    <select th:field="*{area}" class="form-select" id="area">
+                        <option value="">Sem área definida</option>
+                        <option th:each="area : ${areas}" th:value="${area.id}" th:text="${area.name}" 
+                                th:selected="${motorcycle.area != null} && ${motorcycle.area.id} == ${area.id}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i>
+                    <span th:text="${motorcycle.id != null} ? 'Atualizar' : 'Cadastrar'">Cadastrar</span>
+                </button>
+                <a href="/motorcycles" class="btn btn-secondary ms-2"><i class="fas fa-times"></i> Cancelar</a>
+            </div>
+        </form>
+    </section>
+</body>
+</html>

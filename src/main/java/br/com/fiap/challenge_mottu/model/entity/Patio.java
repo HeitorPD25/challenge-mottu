@@ -36,7 +36,7 @@ public class Patio {
     private Adress adress;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @OneToMany

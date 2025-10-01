@@ -1,112 +1,64 @@
 package br.com.fiap.challenge_mottu.controller;
 
-import java.util.List;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import br.com.fiap.challenge_mottu.model.dto.AreaDTO;
 import br.com.fiap.challenge_mottu.model.entity.Area;
 import br.com.fiap.challenge_mottu.repository.AreaRepository;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-@RestController
-@RequestMapping("areas")
-@Slf4j
+@Controller
+@RequestMapping("/areas")
 public class AreaController {
-    
+
     @Autowired
     private AreaRepository repository;
 
-// ------------------------------ Model Mapper ------------------------------
-    @Autowired
-    private ModelMapper modelMapper;
-
-    public AreaDTO toDTO(Area area) {
-        return modelMapper.map(area, AreaDTO.class);
-    }
-
-    public Area toEntity(AreaDTO dto) {
-        return modelMapper.map(dto, Area.class);
-    }
-// --------------------------------------------------------------------------
-
     @GetMapping
-    @Operation(summary = "Listar Áreas", 
-               description = "Retorna um array com todas as Áreas")
-    @Cacheable("areas")
-    public List<Area> index() {
-        return repository.findAll();
+    public String list(Model model) {
+        model.addAttribute("areas", repository.findAll());
+        return "area-list";
     }
 
-    @GetMapping("{id}")
-    @Operation(summary = "Listar Áreas", 
-               description = "Busca uma Área pelo ID",
-               responses = @ApiResponse(responseCode = "404", 
-               description = "Área não encontrada!"))
-    @Cacheable("areas")
-    public ResponseEntity<Area> get(@PathVariable Long id) {
-        log.info("Buscando categoria " + id);
-        return ResponseEntity.ok(getArea(id));
+    @GetMapping("/new")
+    public String createForm(Model model) {
+        model.addAttribute("area", new Area());
+        return "area-form";
     }
 
     @PostMapping
-    @Operation(summary = "Cadastrar uma Área", 
-               description = "Cadastra uma nova Área",
-               responses = @ApiResponse(responseCode = "400", 
-               description = "Erro de Validação!"))
-    @CacheEvict(value = "areas", allEntries = true)
-    public Area create(@RequestBody @Valid Area area){
-        log.info("Cadastrando Area " + area.getName());
-        return repository.save(area);
+    public String create(@Valid @ModelAttribute Area area) {
+        repository.save(area);
+        return "redirect:/areas";
     }
 
-    @PutMapping("{id}")
-    @Operation(summary = "Atualizar uma Área", 
-            description = "Atualiza uma Área pelo ID",
-            responses = @ApiResponse(responseCode = "404", 
-            description = "Área não encontrada!"))
-    public ResponseEntity<Area> update(@PathVariable Long id, @RequestBody @Valid Area area){
-        log.info("Atualizando área " + id + " com " + area);
-
-        var oldArea = getArea(id);
-        BeanUtils.copyProperties(area, oldArea, "id", "user");
-        repository.save(oldArea);
-        return ResponseEntity.ok(oldArea);
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model) {
+        Area area = getArea(id);
+        model.addAttribute("area", area);
+        return "area-form";
     }
 
-    @DeleteMapping("{id}")
-    @Operation(summary = "Deletar uma Área", 
-            description = "Deleta uma Área pelo ID",
-            responses = @ApiResponse(responseCode = "404", 
-            description = "Moto não encontrada!"))
-    public ResponseEntity<Area> delete(@PathVariable Long id){
-        log.info("Deletando categoria " + id);
+    @PostMapping("/{id}")
+    public String update(@PathVariable Long id, @Valid @ModelAttribute Area area) {
+        Area existing = getArea(id);
+        BeanUtils.copyProperties(area, existing, "id");
+        repository.save(existing);
+        return "redirect:/areas";
+    }
+
+    @GetMapping("/{id}/delete")
+    public String delete(@PathVariable Long id) {
         repository.delete(getArea(id));
-        return ResponseEntity.noContent().build();
+        return "redirect:/areas";
     }
 
     private Area getArea(Long id) {
         return repository.findById(id)
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Área não encontrada"));
     }
-        
 }

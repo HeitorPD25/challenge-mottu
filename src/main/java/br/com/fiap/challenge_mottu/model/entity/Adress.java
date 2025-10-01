@@ -34,10 +34,14 @@ public class Adress {
 
     @NotBlank(message = "O endereço não pode estar em branco.")
     @Positive(message = "O número deve ser maior que zero.")
-    private Long number;
+    private String number;
 
     @NotBlank(message = "O Bairro não pode estar em branco.")
     private String neighborhood;
+
+    @NotBlank(message = "O Estado não pode estar em branco.")
+    @Size(min = 3, max = 100, message = "Escreva o nome completo do estado.")
+    private String city;
 
     @NotBlank(message = "O Estado não pode estar em branco.")
     @Size(min = 3, max = 100, message = "Escreva o nome completo do estado.")
@@ -45,7 +49,7 @@ public class Adress {
 
     @NotBlank(message = "O CEP não pode estar em branco.")
     @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "O CEP deve estar no formato 12345-678 ou 12345678")
-    private String cep;
+    private String zipCode;
 
     @Size(max = 50, message = "O complemento pode ter no máximo 50 caracteres")
     private String complement;

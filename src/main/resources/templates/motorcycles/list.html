@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: html(~{::title}, ~{::section})">
+<head>
+    <title>Motocicletas</title>
+</head>
+<body>
+    <section th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-motorcycle"></i> Motocicletas</h1>
+            <a href="/motorcycles/new" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nova Motocicleta
+            </a>
+        </div>
+
+        <!-- Mensagens de Sucesso/Erro -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-filter"></i> Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">Todos os Status</option>
+                            <option th:each="status : ${statusValues}" 
+                                    th:value="${status}" 
+                                    th:text="${status}"
+                                    th:selected="${selectedStatus == status}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="areaId" class="form-label">Área</label>
+                        <select name="areaId" id="areaId" class="form-select">
+                            <option value="">Todas as Áreas</option>
+                            <option th:each="area : ${areas}" 
+                                    th:value="${area.id}" 
+                                    th:text="${area.name}"
+                                    th:selected="${selectedAreaId == area.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-search"></i> Filtrar
+                        </button>
+                        <a href="/motorcycles" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Limpar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de Motocicletas -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i> Lista de Motocicletas
+                    <span class="badge bg-secondary" th:text="${motorcycles.size()}">0</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${motorcycles.empty}" class="text-center py-4">
+                    <i class="fas fa-motorcycle fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Nenhuma motocicleta encontrada.</p>
+                    <a href="/motorcycles/new" class="btn btn-primary">Cadastrar Primeira Motocicleta</a>
+                </div>
+
+                <div th:if="${not motorcycles.empty}" class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th>Modelo</th>
+                                <th>Cor</th>
+                                <th>Status</th>
+                                <th>Área</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="moto : ${motorcycles}">
+                                <td th:text="${moto.plate}"></td>
+                                <td th:text="${moto.model}"></td>
+                                <td th:text="${moto.color}"></td>
+                                <td>
+                                    <span th:classappend="'badge ' + 
+                                        (${moto.status.name()} == 'Livre' ? 'bg-success' : 
+                                         ${moto.status.name()} == 'Alugado' ? 'bg-info' : 'bg-warning')"
+                                          th:text="${moto.status}">
+                                    </span>
+                                </td>
+                                <td th:text="${moto.area != null ? moto.area.name : 'Sem área'}"></td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{/motorcycles/{id}(id=${moto.id})}" 
+                                           class="btn btn-outline-info" title="Detalhes">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a th:href="@{/motorcycles/{id}/edit(id=${moto.id})}" 
+                                           class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a th:href="@{/motorcycles/{id}/delete(id=${moto.id})}" 
+                                           class="btn btn-outline-danger" title="Excluir"
+                                           onclick="return confirm('Tem certeza que deseja excluir esta motocicleta?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

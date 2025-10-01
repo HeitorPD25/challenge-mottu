@@ -26,7 +26,10 @@ public class Motorcycle {
     private Long id;
 
     @Pattern(regexp = "^[A-Z]{3}-\\d{4}$|^[A-Z]{3}\\d[A-Z]\\d{2}$", message = "Placa inválida")
-    private String license_plate;
+    private String plate;
+
+    @NotNull(message = "Cor é obrigatório")
+    private String color;
 
     @NotNull(message = "Model é obrigatório")
     private Model model;

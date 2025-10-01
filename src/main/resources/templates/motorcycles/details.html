@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: html(~{::title}, ~{::section})">
+<head>
+    <title>Detalhes da Motocicleta</title>
+</head>
+<body>
+    <section th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-motorcycle"></i> Detalhes da Motocicleta</h1>
+            <a href="/motorcycles" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div th:object="${motorcycle}" class="row">
+                    <!-- Informações Básicas -->
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2">Informações Básicas</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Placa:</th>
+                                <td th:text="*{plate}"></td>
+                            </tr>
+                            <tr>
+                                <th>Modelo:</th>
+                                <td th:text="*{model}"></td>
+                            </tr>
+                            <tr>
+                                <th>Cor:</th>
+                                <td th:text="*{color}"></td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    <span th:classappend="'badge ' + 
+                                        ${motorcycle.status.name() == 'Livre'} ? 'bg-success' :
+                                        ${motorcycle.status.name() == 'Alugado'} ? 'bg-info' : 'bg-warning'"
+                                        th:text="*{status}">
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Localização -->
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2">Localização</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Área:</th>
+                                <td>
+                                    <span th:if="*{area}" th:text="*{area.name}" class="fw-bold text-primary"></span>
+                                    <span th:unless="*{area}" class="text-muted">Sem área definida</span>
+                                </td>
+                            </tr>
+                            <tr th:if="*{area}">
+                                <th>Descrição:</th>
+                                <td th:text="*{area.description} ?: 'Sem descrição'" class="text-muted"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="mt-4 border-top pt-3">
+                    <a th:href="@{/motorcycles/{id}/edit(id=${motorcycle.id})}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a th:href="@{/motorcycles/{id}/delete(id=${motorcycle.id})}" 
+                       class="btn btn-danger ms-2"
+                       onclick="return confirm('Tem certeza que deseja excluir esta motocicleta?')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
